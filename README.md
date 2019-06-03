@@ -16,4 +16,4 @@ js代码需要调试寻找，不会调试的百度，具体就不多说了，放
 
 成果
 ============
-![image](
+![image](https://github.com/xzh0723/QiMingPian/blob/master/view.png)
