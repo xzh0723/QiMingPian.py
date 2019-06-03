@@ -1,0 +1,52 @@
+import base64
+import zlib
+import chardet
+import json
+import execjs
+import requests
+
+def fetch(page):
+    """
+    遍历页码抓取，非认证用户只能抓两页
+    :param page:
+    :return:
+    """
+    data = {
+        'time_interval': '',
+        'tag': '',
+        'tag_type': 'and',
+        'province': '',
+        'lunci': '',
+        'page': page,
+        'num': '20',
+        # 这个unionid是用来判断用户是否认证的，未认证用户只能查看前40条数据
+        # unionid就是cookies中的gs_unionid，不知道能不能伪造认证
+        'unionid': 'gcqYRyoKEpPTuZVynTJXoax8gcfrz6HE1IqFT8Q5Wh0upR97eW4YgEyLsMPqAcEdeJWqqIs6kiQsM8IbOYgM5A=='
+    }
+
+    headers = {
+        'Referer': 'https://www.qimingpian.com/finosda/project/pinvestment',
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Mobile Safari/537.36',
+    }
+
+    res = requests.post(api, data=data, headers=headers).json()
+    content = res['encrypt_data']
+    print(f'加密数据：{content}')
+
+    # 注意：
+    #   1：JSON.parse()方法execjs环境不支持，需要改成new Buffer()输出
+    #   2：返回的加密数据后缀有"=="，明显是base64编码，所以加密流程应该是先对数据进行了base64编码形成base64字符串，
+    #   然后再对这段字符串进行js加密，所以最后js解密输出也要转化为base64编码的字符串
+    with open('decrypt_.js', 'r') as f:
+        js = f.read()
+
+    ctx = execjs.compile(js)
+    real_content = ctx.call('decrypt', content)
+    real_content = base64.b64decode(real_content)
+    real_content = json.loads(real_content)
+    print(f'解密后的真实数据：{real_content}')
+
+if __name__ == '__main__':
+    api = 'https://vipapi.qimingpian.com/DataList/productListVip'
+    for page in range(1, 3):
+        fetch(page)
