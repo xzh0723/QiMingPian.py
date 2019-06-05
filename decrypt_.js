@@ -99,5 +99,8 @@ function s(t, e, i, n, a, s) {
 }
 
 function decrypt(t) {
+    // 注意：
+    // 1：JSON.parse()方法node环境不支持，需要改成new Buffer()输出为base64编码的字符串
+    // 2：加密流程应该是先对数据进行了base64编码形成base64字符串，然后再对这段字符串进行js加密
     return new Buffer(s("5e5062e82f15fe4ca9d24bc5", decode(t), 0, 0, "012345677890123", 1)).toString("base64")
 }
