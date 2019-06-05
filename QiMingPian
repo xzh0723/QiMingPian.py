@@ -33,12 +33,8 @@ def fetch(page):
     content = res['encrypt_data']
     print(f'加密数据：{content}')
 
-    # 注意：
-    #   1：JSON.parse()方法execjs环境不支持，需要改成new Buffer()输出
-    #   2：返回的加密数据后缀有"=="，明显是base64编码，所以加密流程应该是先对数据进行了base64编码形成base64字符串，
-    #   然后再对这段字符串进行js加密，所以最后js解密输出也要转化为base64编码的字符串
-    with open('decrypt_.js', 'r') as f:
-        js = f.read()
+    with open('decrypt_.js', 'rb') as f:
+        js = f.read().decode()
 
     ctx = execjs.compile(js)
     real_content = ctx.call('decrypt', content)
